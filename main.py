@@ -1,66 +1,57 @@
 import streamlit as st
 import pandas as pd
 from orchestrator import run_simulation
-import state
+
+# 🔒 state 안전 초기화
+if "nurses" not in st.session_state:
+    st.session_state.nurses = [{"name": f"Nurse{i}"} for i in range(1, 21)]
+
+if "rules" not in st.session_state:
+    st.session_state.rules = {}
 
 st.title("Nurse Scheduler")
 
 tab1, tab2, tab3 = st.tabs(["Schedule", "Nurses", "Rules"])
 
-# =========================
+# ======================
 # SCHEDULE
-# =========================
+# ======================
 with tab1:
 
-    st.subheader("Schedule")
-
-    if st.button("Run Optimization"):
+    if st.button("Run OR-Tools (10x)"):
 
         result = run_simulation(
-            nurses=state.nurses,
-            rules=state.rules,
+            nurses=st.session_state.nurses,
+            rules=st.session_state.rules,
             runs=10
         )
 
-        # 🔒 최종 방어
-        if not isinstance(result, list) or len(result) == 0:
-            st.error("No valid schedule generated")
+        if len(result) == 0:
+            st.error("No schedule generated")
             st.stop()
 
         for i, r in enumerate(result):
 
-            st.markdown(f"## Rank {i+1} | Score {r.get('score',0)}")
+            st.subheader(f"Rank {i+1} | Score {r['score']}")
 
-            schedule = r.get("schedule", [])
+            st.dataframe(pd.DataFrame(r["schedule"]))
 
-            if not isinstance(schedule, list):
-                continue
-
-            df = pd.DataFrame(schedule)
-            st.dataframe(df)
-
-
-# =========================
+# ======================
 # NURSES
-# =========================
+# ======================
 with tab2:
-
-    st.subheader("Nurses")
 
     name = st.text_input("Nurse Name")
 
     if st.button("Add Nurse"):
         if name:
-            state.nurses.append({"name": name})
+            st.session_state.nurses.append({"name": name})
 
-    st.dataframe(pd.DataFrame(state.nurses))
+    st.dataframe(pd.DataFrame(st.session_state.nurses))
 
-
-# =========================
+# ======================
 # RULES
-# =========================
+# ======================
 with tab3:
 
-    st.subheader("Rules")
-
-    st.write(state.rules)
+    st.write(st.session_state.rules)
