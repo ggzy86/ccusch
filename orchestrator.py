@@ -1,7 +1,6 @@
 from solver import generate_schedule
-import random
 
-def run_simulation(nurses, rules=None, runs=10):  # ← 핵심 수정
+def run_simulation(nurses, rules=None, runs=10):
 
     best_schedule = None
     best_score = -1
@@ -10,17 +9,18 @@ def run_simulation(nurses, rules=None, runs=10):  # ← 핵심 수정
 
         schedule = generate_schedule(nurses, rules)
 
-        if not schedule:
+        # ✔ 방어코드 (핵심)
+        if schedule is None or len(schedule) == 0:
             continue
 
-        # 아주 단순 점수 (임시)
         score = len(schedule)
 
         if score > best_score:
             best_score = score
             best_schedule = schedule
 
-    if best_schedule is None:
+    # ✔ 최종 방어
+    if best_schedule is None or len(best_schedule) == 0:
         return []
 
     return best_schedule
