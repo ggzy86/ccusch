@@ -11,27 +11,43 @@ def generate_schedule(nurses):
     shifts = ["D", "E", "N"]
 
     x = {}
+    off = {}
 
+    # ======================
     # 변수 생성
+    # ======================
     for i in range(len(nurses)):
         for d in range(days):
+
+            off[(i, d)] = model.NewBoolVar(f"off_{i}_{d}")
+
             for s in shifts:
                 x[(i, d, s)] = model.NewBoolVar(f"x_{i}_{d}_{s}")
 
-    # 1. 간호사 하루 1 shift
+    # ======================
+    # 1. 하루에 반드시 1개 상태만
+    # (D/E/N/OFF 중 하나)
+    # ======================
     for i in range(len(nurses)):
         for d in range(days):
-            model.Add(sum(x[(i, d, s)] for s in shifts) <= 1)
+            model.Add(
+                sum(x[(i, d, s)] for s in shifts) + off[(i, d)] == 1
+            )
 
-    # 2. 최소 staffing (핵심 안정화)
-    # 👉 각 shift마다 최소 1명만 보장 (과도한 constraint 방지)
+    # ======================
+    # 2. shift당 최소 인원 (임시 안정형)
+    # ======================
     for d in range(days):
         for s in shifts:
             model.Add(
                 sum(x[(i, d, s)] for i in range(len(nurses))) >= 1
             )
 
+    # ======================
+    # solver
+    # ======================
     solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = 2
 
     status = solver.Solve(model)
 
@@ -42,6 +58,10 @@ def generate_schedule(nurses):
 
     for i, n in enumerate(nurses):
         for d in range(days):
+
+            if solver.Value(off[(i, d)]) == 1:
+                continue
+
             for s in shifts:
                 if solver.Value(x[(i, d, s)]) == 1:
                     schedule.append({
