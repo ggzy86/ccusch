@@ -13,9 +13,9 @@ def generate_schedule(nurses):
     x = {}
     off = {}
 
-    # ======================
+    # =========================
     # 변수 생성
-    # ======================
+    # =========================
     for i in range(len(nurses)):
         for d in range(days):
 
@@ -24,33 +24,41 @@ def generate_schedule(nurses):
             for s in shifts:
                 x[(i, d, s)] = model.NewBoolVar(f"x_{i}_{d}_{s}")
 
-    # ======================
-    # 1. 하루에 반드시 1개 상태만
-    # (D/E/N/OFF 중 하나)
-    # ======================
+    # =========================
+    # 하루 1 상태 (D/E/N/OFF)
+    # =========================
     for i in range(len(nurses)):
         for d in range(days):
             model.Add(
                 sum(x[(i, d, s)] for s in shifts) + off[(i, d)] == 1
             )
 
-    # ======================
-    # 2. shift당 최소 인원 (임시 안정형)
-    # ======================
+    # =========================
+    # shift 최소 인원
+    # =========================
     for d in range(days):
         for s in shifts:
             model.Add(
                 sum(x[(i, d, s)] for i in range(len(nurses))) >= 1
             )
 
-    # ======================
+    # =========================
     # solver
-    # ======================
+    # =========================
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = 2
 
     status = solver.Solve(model)
 
+    # =========================
+    # 🔥 DEBUG (여기 2개가 핵심)
+    # =========================
+    print("STATUS:", solver.StatusName(status))
+    print("OBJECTIVE:", solver.ObjectiveValue())
+
+    # =========================
+    # 결과 처리
+    # =========================
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         return []
 
