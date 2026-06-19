@@ -9,4 +9,5 @@ if st.button("Generate"):
         nurses=state.nurses,
         rules=state.rules
     )
+
     st.write(result)
