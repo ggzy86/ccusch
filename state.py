@@ -1,4 +1,2 @@
-nurses = []
+nurses = [{"name": f"Nurse{i}"} for i in range(1, 21)]
 rules = {}
-schedule_draft = None
-schedule_history = []
