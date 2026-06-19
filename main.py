@@ -5,83 +5,51 @@ import state
 
 st.title("Nurse Scheduler")
 
-# =========================
-# TABS
-# =========================
-tab1, tab2, tab3 = st.tabs(["Schedule", "Nurses", "Rule Book"])
+tab1, tab2, tab3 = st.tabs(["Schedule", "Nurses", "Rules"])
 
-# =========================
-# TAB 1 - SCHEDULE
-# =========================
+# -------------------------
+# SCHEDULE
+# -------------------------
 with tab1:
 
-    st.subheader("Generate Schedule")
+    st.subheader("OR-Tools Scheduler (Top 2)")
 
-    days = st.number_input("Days", min_value=1, max_value=30, value=3)
-
-    if st.button("Generate"):
+    if st.button("Run 10x Optimization"):
 
         result = run_simulation(
             nurses=state.nurses,
-            rules=state.rules
+            rules=state.rules,
+            runs=10
         )
 
-        rows = []
+        for idx, r in enumerate(result):
 
-        for day in range(days):
-            for r in result:
-                for s in r["schedule"]:
-                    rows.append({
-                        "day": day + 1,
-                        "nurse": s["nurse"],
-                        "shift": s["shift"],
-                        "score": r["score"]
-                    })
+            st.markdown(f"## Result {idx+1} | Score: {r['score']}")
 
-        st.dataframe(pd.DataFrame(rows))
+            df = pd.DataFrame(r["schedule"])
 
+            st.dataframe(df)
 
-# =========================
-# TAB 2 - NURSES
-# =========================
+# -------------------------
+# NURSES
+# -------------------------
 with tab2:
 
-    st.subheader("Nurse Manager")
+    st.subheader("Nurses")
 
-    name = st.text_input("Nurse Name", key="nurse_input")
+    name = st.text_input("Nurse Name", key="nurse")
 
     if st.button("Add Nurse"):
-        if name.strip():
-            state.nurses.append({"name": name.strip()})
-            st.session_state.nurse_input = ""
-
-    st.write("Total Nurses:", len(state.nurses))
+        if name:
+            state.nurses.append({"name": name})
 
     st.dataframe(pd.DataFrame(state.nurses))
 
-
-# =========================
-# TAB 3 - RULE BOOK
-# =========================
+# -------------------------
+# RULES (placeholder)
+# -------------------------
 with tab3:
 
-    st.subheader("Rule Book")
+    st.subheader("Rules")
 
-    rule_key = st.text_input("Rule Name", key="rule_key")
-    rule_value = st.text_input("Rule Value", key="rule_value")
-
-    if st.button("Add Rule"):
-        if rule_key.strip() and rule_value.strip():
-            state.rules[rule_key.strip()] = rule_value.strip()
-            st.session_state.rule_key = ""
-            st.session_state.rule_value = ""
-
-    st.write("Total Rules:", len(state.rules))
-
-    # RULE TABLE VIEW
-    rule_df = pd.DataFrame([
-        {"rule": k, "value": v}
-        for k, v in state.rules.items()
-    ])
-
-    st.dataframe(rule_df)
+    st.write(state.rules)
