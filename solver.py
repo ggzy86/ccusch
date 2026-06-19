@@ -1,7 +1,7 @@
 from ortools.sat.python import cp_model
 import random
 
-def generate_schedule(nurses, rules=None):
+def generate_schedule(nurses):
 
     if not isinstance(nurses, list) or len(nurses) == 0:
         return []
@@ -18,13 +18,17 @@ def generate_schedule(nurses, rules=None):
             for s in shifts:
                 x[(i, d, s)] = model.NewBoolVar(f"x_{i}_{d}_{s}")
 
-    # 하루 1 shift
+    # 1) 하루 1 shift
     for i in range(len(nurses)):
         for d in range(days):
             model.Add(sum(x[(i, d, s)] for s in shifts) <= 1)
 
+    # 2) 🔥 핵심: 반드시 shift 하나는 발생해야 함
+    for d in range(days):
+        model.Add(sum(x[(i, d, s)] for i in range(len(nurses)) for s in shifts) >= 1)
+
+    # 3) 랜덤성 제거 (안정화)
     solver = cp_model.CpSolver()
-    solver.parameters.random_seed = random.randint(1, 9999)
 
     status = solver.Solve(model)
 
