@@ -9,8 +9,11 @@ def run_simulation(nurses, rules=None, runs=10):
 
         schedule = generate_schedule(nurses, rules)
 
-        # ✔ 방어코드 (핵심)
-        if schedule is None or len(schedule) == 0:
+        # ✔ 타입 강제 방어
+        if not isinstance(schedule, list):
+            continue
+
+        if len(schedule) == 0:
             continue
 
         score = len(schedule)
@@ -19,8 +22,7 @@ def run_simulation(nurses, rules=None, runs=10):
             best_score = score
             best_schedule = schedule
 
-    # ✔ 최종 방어
-    if best_schedule is None or len(best_schedule) == 0:
+    if not isinstance(best_schedule, list) or len(best_schedule) == 0:
         return []
 
     return best_schedule
