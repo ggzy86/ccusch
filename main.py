@@ -4,41 +4,43 @@ import state
 
 st.title("Nurse Scheduler")
 
-# =========================
-# 1. Nurses 관리
-# =========================
+# --------------------
+# Nurses
+# --------------------
 st.subheader("Nurses")
 
-name = st.text_input("Add Nurse Name")
+name = st.text_input("Nurse Name", key="nurse_input")
 
 if st.button("Add Nurse"):
-    state.nurses.append({"name": name})
-    st.success(f"Added {name}")
+    if name.strip():
+        state.nurses.append({"name": name})
+        st.success("Added")
 
 st.write(state.nurses)
 
 
-# =========================
-# 2. Rules 관리
-# =========================
+# --------------------
+# Rules
+# --------------------
 st.subheader("Rules")
 
-rule_key = st.text_input("Rule Key")
-rule_value = st.text_input("Rule Value")
+rule_key = st.text_input("Rule Key", key="rule_key")
+rule_value = st.text_input("Rule Value", key="rule_value")
 
 if st.button("Add Rule"):
-    state.rules[rule_key] = rule_value
-    st.success(f"Added rule {rule_key}")
+    if rule_key.strip():
+        state.rules[rule_key] = rule_value
+        st.success("Added")
 
 st.write(state.rules)
 
 
-# =========================
-# 3. Schedule Generator
-# =========================
+# --------------------
+# Generate
+# --------------------
 st.subheader("Scheduler")
 
-if st.button("Generate 10 Schedules"):
+if st.button("Generate"):
     result = run_simulation(
         nurses=state.nurses,
         rules=state.rules
