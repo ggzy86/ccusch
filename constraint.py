@@ -1,17 +1,15 @@
 def score(schedule, rules=None):
 
-    if not schedule:
+    if not isinstance(schedule, list):
         return 0
 
-    score = 100
+    if len(schedule) == 0:
+        return 0
 
-    # shift balance scoring
-    d = sum(1 for s in schedule if s["shift"] == "D")
-    e = sum(1 for s in schedule if s["shift"] == "E")
-    n = sum(1 for s in schedule if s["shift"] == "N")
+    d = sum(1 for x in schedule if x["shift"] == "D")
+    e = sum(1 for x in schedule if x["shift"] == "E")
+    n = sum(1 for x in schedule if x["shift"] == "N")
 
-    # fairness penalty
-    diff = max(d, e, n) - min(d, e, n)
-    score -= diff * 2
+    fairness_penalty = max(d, e, n) - min(d, e, n)
 
-    return score
+    return max(0, 100 - fairness_penalty * 2)
