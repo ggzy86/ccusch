@@ -1,13 +1,17 @@
-def is_valid(schedule, rules=None):
-    return True
-
-
 def score(schedule, rules=None):
+
     if not schedule:
         return 0
 
+    score = 100
+
+    # shift balance scoring
     d = sum(1 for s in schedule if s["shift"] == "D")
     e = sum(1 for s in schedule if s["shift"] == "E")
     n = sum(1 for s in schedule if s["shift"] == "N")
 
-    return 100 - max(d, e, n)
+    # fairness penalty
+    diff = max(d, e, n) - min(d, e, n)
+    score -= diff * 2
+
+    return score
