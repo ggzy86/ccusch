@@ -23,15 +23,16 @@ def generate_schedule(nurses):
         for d in range(days):
             model.Add(sum(x[(i, d, s)] for s in shifts) <= 1)
 
-    # 2. shift별 최소 인원 (핵심 수정)
+    # 2. 최소 staffing (핵심 안정화)
+    # 👉 각 shift마다 최소 1명만 보장 (과도한 constraint 방지)
     for d in range(days):
         for s in shifts:
             model.Add(
                 sum(x[(i, d, s)] for i in range(len(nurses))) >= 1
             )
 
-    # solver
     solver = cp_model.CpSolver()
+
     status = solver.Solve(model)
 
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
