@@ -10,6 +10,4 @@ def score(schedule, rules=None):
     e = sum(1 for x in schedule if x["shift"] == "E")
     n = sum(1 for x in schedule if x["shift"] == "N")
 
-    fairness_penalty = max(d, e, n) - min(d, e, n)
-
-    return max(0, 100 - fairness_penalty * 2)
+    return max(0, 100 - abs(d - e) - abs(e - n))
