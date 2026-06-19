@@ -1,6 +1,6 @@
 from ortools.sat.python import cp_model
 
-def generate_schedule(nurses, rules=None):  # ✔ 여기 수정 핵심
+def generate_schedule(nurses, rules=None):  # ✔ 핵심: orchestrator랑 시그니처 맞춤
 
     if not isinstance(nurses, list) or len(nurses) == 0:
         return []
@@ -25,7 +25,7 @@ def generate_schedule(nurses, rules=None):  # ✔ 여기 수정 핵심
                 x[(i, d, s)] = model.NewBoolVar(f"x_{i}_{d}_{s}")
 
     # =========================
-    # 하루 1 상태 (D/E/N/OFF)
+    # 하루에 하나만 (근무 or OFF)
     # =========================
     for i in range(len(nurses)):
         for d in range(days):
@@ -51,7 +51,7 @@ def generate_schedule(nurses, rules=None):  # ✔ 여기 수정 핵심
     status = solver.Solve(model)
 
     # =========================
-    # DEBUG (필수)
+    # DEBUG (여기서 바로 확인)
     # =========================
     print("STATUS:", solver.StatusName(status))
     print("OBJECTIVE:", solver.ObjectiveValue())
