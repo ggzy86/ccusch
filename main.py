@@ -7,14 +7,14 @@ st.title("Nurse Scheduler")
 
 tab1, tab2, tab3 = st.tabs(["Schedule", "Nurses", "Rules"])
 
-# -------------------------
+# =========================
 # SCHEDULE
-# -------------------------
+# =========================
 with tab1:
 
-    st.subheader("OR-Tools Scheduler (Top 2)")
+    st.subheader("Schedule")
 
-    if st.button("Run 10x Optimization"):
+    if st.button("Run Optimization"):
 
         result = run_simulation(
             nurses=state.nurses,
@@ -22,22 +22,32 @@ with tab1:
             runs=10
         )
 
-        for idx, r in enumerate(result):
+        # 🔒 최종 방어
+        if not isinstance(result, list) or len(result) == 0:
+            st.error("No valid schedule generated")
+            st.stop()
 
-            st.markdown(f"## Result {idx+1} | Score: {r['score']}")
+        for i, r in enumerate(result):
 
-            df = pd.DataFrame(r["schedule"])
+            st.markdown(f"## Rank {i+1} | Score {r.get('score',0)}")
 
+            schedule = r.get("schedule", [])
+
+            if not isinstance(schedule, list):
+                continue
+
+            df = pd.DataFrame(schedule)
             st.dataframe(df)
 
-# -------------------------
+
+# =========================
 # NURSES
-# -------------------------
+# =========================
 with tab2:
 
     st.subheader("Nurses")
 
-    name = st.text_input("Nurse Name", key="nurse")
+    name = st.text_input("Nurse Name")
 
     if st.button("Add Nurse"):
         if name:
@@ -45,9 +55,10 @@ with tab2:
 
     st.dataframe(pd.DataFrame(state.nurses))
 
-# -------------------------
-# RULES (placeholder)
-# -------------------------
+
+# =========================
+# RULES
+# =========================
 with tab3:
 
     st.subheader("Rules")
