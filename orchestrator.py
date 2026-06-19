@@ -1,28 +1,26 @@
 from solver import generate_schedule
-from constraint import score
+import random
 
-def run_simulation(nurses, rules=None, runs=10):
+def run_simulation(nurses, rules=None, runs=10):  # ← 핵심 수정
 
-    results = []
-
-    if not isinstance(nurses, list):
-        return []
+    best_schedule = None
+    best_score = -1
 
     for _ in range(runs):
 
         schedule = generate_schedule(nurses, rules)
 
-        if not isinstance(schedule, list) or len(schedule) == 0:
+        if not schedule:
             continue
 
-        results.append({
-            "schedule": schedule,
-            "score": score(schedule, rules)
-        })
+        # 아주 단순 점수 (임시)
+        score = len(schedule)
 
-    if len(results) == 0:
+        if score > best_score:
+            best_score = score
+            best_schedule = schedule
+
+    if best_schedule is None:
         return []
 
-    results.sort(key=lambda x: x["score"], reverse=True)
-
-    return results[:2]
+    return best_schedule
