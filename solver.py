@@ -1,6 +1,6 @@
 from ortools.sat.python import cp_model
 
-def generate_schedule(nurses):
+def generate_schedule(nurses, rules=None):  # ✔ 여기 수정 핵심
 
     if not isinstance(nurses, list) or len(nurses) == 0:
         return []
@@ -34,7 +34,7 @@ def generate_schedule(nurses):
             )
 
     # =========================
-    # shift 최소 인원
+    # shift 최소 인원 (안정 버전)
     # =========================
     for d in range(days):
         for s in shifts:
@@ -51,13 +51,13 @@ def generate_schedule(nurses):
     status = solver.Solve(model)
 
     # =========================
-    # 🔥 DEBUG (여기 2개가 핵심)
+    # DEBUG (필수)
     # =========================
     print("STATUS:", solver.StatusName(status))
     print("OBJECTIVE:", solver.ObjectiveValue())
 
     # =========================
-    # 결과 처리
+    # 결과
     # =========================
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         return []
