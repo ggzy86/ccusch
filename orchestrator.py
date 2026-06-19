@@ -5,7 +5,6 @@ def run_simulation(nurses, rules=None, runs=10):
 
     results = []
 
-    # 🔒 입력 방어
     if not isinstance(nurses, list):
         return []
 
@@ -13,8 +12,7 @@ def run_simulation(nurses, rules=None, runs=10):
 
         schedule = generate_schedule(nurses, rules)
 
-        # 🔒 타입 고정
-        if not isinstance(schedule, list):
+        if not isinstance(schedule, list) or len(schedule) == 0:
             continue
 
         results.append({
