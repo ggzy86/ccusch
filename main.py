@@ -1,57 +1,26 @@
 import streamlit as st
-import pandas as pd
-from orchestrator import run_simulation
 
-# 🔒 state 안전 초기화
-if "nurses" not in st.session_state:
-    st.session_state.nurses = [{"name": f"Nurse{i}"} for i in range(1, 21)]
+st.title("OR-Tools TEST")
 
-if "rules" not in st.session_state:
-    st.session_state.rules = {}
+try:
+    from ortools.sat.python import cp_model
 
-st.title("Nurse Scheduler")
+    st.success("OR-TOOLS IMPORT OK")
 
-tab1, tab2, tab3 = st.tabs(["Schedule", "Nurses", "Rules"])
+    # 아주 단순 테스트 모델
+    model = cp_model.CpModel()
 
-# ======================
-# SCHEDULE
-# ======================
-with tab1:
+    x = model.NewBoolVar("x")
+    y = model.NewBoolVar("y")
 
-    if st.button("Run OR-Tools (10x)"):
+    model.Add(x + y <= 1)
 
-        result = run_simulation(
-            nurses=st.session_state.nurses,
-            rules=st.session_state.rules,
-            runs=10
-        )
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
 
-        if len(result) == 0:
-            st.error("No schedule generated")
-            st.stop()
+    st.success("CP-SAT SOLVE OK")
+    st.write("Status:", status)
 
-        for i, r in enumerate(result):
-
-            st.subheader(f"Rank {i+1} | Score {r['score']}")
-
-            st.dataframe(pd.DataFrame(r["schedule"]))
-
-# ======================
-# NURSES
-# ======================
-with tab2:
-
-    name = st.text_input("Nurse Name")
-
-    if st.button("Add Nurse"):
-        if name:
-            st.session_state.nurses.append({"name": name})
-
-    st.dataframe(pd.DataFrame(st.session_state.nurses))
-
-# ======================
-# RULES
-# ======================
-with tab3:
-
-    st.write(st.session_state.rules)
+except Exception as e:
+    st.error("ERROR OCCURRED")
+    st.exception(e)
