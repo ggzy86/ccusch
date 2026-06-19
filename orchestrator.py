@@ -1,18 +1,22 @@
 from solver import generate_schedule
-from constraint import is_valid, score
+from constraint import score
 
-def run_simulation(n=10, nurses=None, rules=None):
-    nurses = nurses or []
+def run_simulation(nurses, rules=None, runs=10):
+
     results = []
 
-    for _ in range(n):
-        s = generate_schedule(nurses, rules)
+    for _ in range(runs):
 
-        if is_valid(s, rules):
-            results.append({
-                "schedule": s,
-                "score": score(s, rules)
-            })
+        schedule = generate_schedule(nurses, rules)
+
+        if not schedule:
+            continue
+
+        results.append({
+            "schedule": schedule,
+            "score": score(schedule, rules)
+        })
 
     results.sort(key=lambda x: x["score"], reverse=True)
-    return results[:10]
+
+    return results[:2]
